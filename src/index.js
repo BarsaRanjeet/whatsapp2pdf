@@ -3,8 +3,8 @@ import * as fs from 'fs'
 import prompt from 'prompt';
 
 const data = {
-    FromDate: new Date("2021-12-01"),
-    ToDate: new Date("2021-12-05"),
+    FromDate: new Date("2022-01-07"),
+    ToDate: new Date("2022-01-10T23:59:59.999Z"),
     start_id: null,
     end_id: null,
     cursor: null,
@@ -39,7 +39,7 @@ const office_order = "919909955422-1465194455@g.us";
 //         }
 //         console.log("************* Program started *************");
 //         data.FromDate = result.FromDate;
-//         data.ToDate = result.ToDate;
+//         data.ToDate = `${result.ToDate}T23:59:59.999Z`;
 //         gotInputs();
 //     });
 
@@ -96,14 +96,22 @@ const loadMessages = (cursor) => {
     });
 }
 
+// after getting From and To date messages will get final messages
+const loadFinalMessages = (cursor, count) => {
+    return new Promise(async (resolutionFunc) => {
+        const chats = await conn.loadMessages(office_order, count, cursor); // Note
+        resolutionFunc(chats);
+    });
+}
+
 
 const findDate = () => {
     loadMessages(data.cursor).then((val) => {
         const messages = val.messages;
         const past_day = messages[0].messageTimestamp.low * 1000 + (5.5 * 60 * 60 * 1000);
-        const last_day = messages[messages.length - 1].messageTimestamp.low * 1000 + (5.5 * 60 * 60 * 1000);
+        // const last_day = messages[messages.length - 1].messageTimestamp.low * 1000 + (5.5 * 60 * 60 * 1000); // incase if required this variable
 
-        console.log(new Date(messages[0].messageTimestamp.low * 1000 + (5.5 * 60 * 60 * 1000)));
+        // console.log(new Date(messages[0].messageTimestamp.low * 1000 + (5.5 * 60 * 60 * 1000)));
 
         // if both FromDate and ToDate are not worthy
         if (past_day >= data.FromDate.getTime() && past_day >= data.ToDate.getTime()) {
@@ -115,13 +123,12 @@ const findDate = () => {
         // if from date is worthy
         if (past_day <= data.FromDate.getTime()) {
             data.start_id = val.cursor;
-            data.end_id = data.cursor;
             if (data.end_id != null) data.count += 10;
         }
 
         // if To Date is worthy
         if (past_day <= data.ToDate.getTime() && data.end_id == null) {
-            data.end_id = val.cursor;
+            data.end_id = data.cursor;
         }
 
         // If both not satisfied then will be trying finding correct date
@@ -131,7 +138,14 @@ const findDate = () => {
             findDate();
             return
         }
-        console.log(data);
+        loadFinalMessages(data.end_id, data.count).then((val) => {
+            const finalMessages = val.messages;
+            finalMessages.map((msg) => {
+                console.log(msg.message)
+                console.log(new Date(msg.messageTimestamp.low * 1000 + (5.5 * 60 * 60 * 1000)))
+                console.log("***************************************************************");
+            });
+        });
     });
 };
 
