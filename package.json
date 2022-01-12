@@ -1,0 +1,20 @@
+{
+  "name": "whatsapp",
+  "version": "1.0.0",
+  "description": "",
+  "main": "./src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "dependencies": {
+    "@adiwajshing/baileys": "^3.5.3",
+    "prompt": "^1.2.1",
+    "sew-web": "^1.0.0"
+  },
+  "exports": "./src/*.js"
+}
