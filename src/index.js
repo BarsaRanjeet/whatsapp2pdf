@@ -2,6 +2,7 @@ import { WAConnection } from '@adiwajshing/baileys'
 import * as fs from 'fs'
 import prompt from 'prompt';
 import moment from 'moment';
+import { GeneratePDF } from './pdf.mjs'
 
 const data = {
     FromDate: new Date("2022-01-08"),
@@ -143,15 +144,24 @@ const findDate = () => {
         // load all messages between from date to To date
         loadFinalMessages(data.end_id, data.count).then((val) => {
             const finalMessages = val.messages;
-            finalMessages.map((msg) => {
-                const msg_timestamp = msg.messageTimestamp.low * 1000; // for local + (5.5 * 60 * 60 * 1000)
-                if (data.ToDate >= msg_timestamp && data.FromDate <= msg_timestamp) {
-                    const message = msg.message;
-                    const key = msg.key;
-                    const contact = conn.contacts[key.id]
-                    console.log(new Date())
-                    console.log("***************************************************************");
-                }
+            const results = [];
+            Promise.all(
+                finalMessages.map(async (msg) => {
+                    const msg_timestamp = msg.messageTimestamp.low * 1000; // for local + (5.5 * 60 * 60 * 1000)
+                    if (data.ToDate >= msg_timestamp && data.FromDate <= msg_timestamp) {
+                        const message_data = msg.message;
+                        const key = msg.key;
+                        const from = conn.contacts[msg.participant].notify;
+                        const date = moment(new Date(msg_timestamp)).format('MMM Do YYYY, h:mm a');
+                        const image = (message_data.imageMessage) ? await conn.downloadAndSaveMediaMessage(msg) : "";
+                        const message = (message_data.conversation) ? message_data.conversation : "";
+                        results.push({ date, type, from, message, image })
+                    }
+                })
+            ).then(() => {
+                const genPDF = new GeneratePDF(results);
+                genPDF.generate();
+                console.log("Done!!!");
             });
         });
     });
