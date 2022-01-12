@@ -152,7 +152,7 @@ const findDate = () => {
                     const key = msg.key;
                     const from = conn.contacts[msg.participant].notify;
                     const date = moment(new Date(msg_timestamp)).format('MMM Do YYYY, h:mm a');
-                    const image = (message_data.imageMessage) ? await conn.downloadAndSaveMediaMessage(msg, key.id) : "";
+                    const image = (message_data.imageMessage) ? await conn.downloadAndSaveMediaMessage(msg, `./src/images/${key.id}`) : "";
                     const message = (message_data.conversation) ? message_data.conversation : "";
                     const type = "";
                     results.push({ date, type, from, message, image });

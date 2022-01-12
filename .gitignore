@@ -107,3 +107,4 @@ dist
 samples/*
 auth_info.json
 package-lock.json
+src/images/*
