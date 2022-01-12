@@ -14,6 +14,7 @@
   "dependencies": {
     "@adiwajshing/baileys": "^3.5.3",
     "csv-parser": "^3.0.0",
+    "lodasync": "^1.0.7",
     "moment": "^2.29.1",
     "pdfkit": "^0.13.0",
     "prompt": "^1.2.1",

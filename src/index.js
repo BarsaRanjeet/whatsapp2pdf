@@ -3,6 +3,7 @@ import * as fs from 'fs'
 import prompt from 'prompt';
 import moment from 'moment';
 import { GeneratePDF } from './pdf.mjs'
+import { mapAsync } from 'lodasync'
 
 const data = {
     FromDate: new Date("2022-01-08"),
@@ -142,25 +143,41 @@ const findDate = () => {
         }
 
         // load all messages between from date to To date
-        loadFinalMessages(data.end_id, data.count).then((val) => {
+        loadFinalMessages(data.end_id, data.count).then(async (val) => {
             const finalMessages = val.messages;
             const results = [];
-            const result = finalMessages.map(async (msg) => {
-                const msg_timestamp = msg.messageTimestamp.low * 1000; // for local + (5.5 * 60 * 60 * 1000)
-                if (data.ToDate >= msg_timestamp && data.FromDate <= msg_timestamp) {
-                    const message_data = msg.message;
-                    const key = msg.key;
-                    const from = conn.contacts[msg.participant].notify;
-                    const date = moment(new Date(msg_timestamp)).format('MMM Do YYYY, h:mm a');
-                    const image = (message_data.imageMessage) ? await conn.downloadAndSaveMediaMessage(msg, `./src/images/${key.id}`) : "";
-                    const message = (message_data.conversation) ? message_data.conversation : "";
-                    const type = "";
-                    results.push({ date, type, from, message, image });
-                }
-            })
-            Promise.all(result).then(() => {
-                console.log(results);
-            })
+            // const result = finalMessages.map(async (msg) => {
+            //     const msg_timestamp = msg.messageTimestamp.low * 1000; // for local + (5.5 * 60 * 60 * 1000)
+            //     if (data.ToDate >= msg_timestamp && data.FromDate <= msg_timestamp) {
+            //         const message_data = msg.message;
+            //         const key = msg.key;
+            //         const from = conn.contacts[msg.participant].notify;
+            //         const date = moment(new Date(msg_timestamp)).format('MMM Do YYYY, h:mm a');
+            //         const image = (message_data.imageMessage) ? await conn.downloadAndSaveMediaMessage(msg, `./src/images/${key.id}`) : "";
+            //         const message = (message_data.conversation) ? message_data.conversation : "";
+            //         const type = "";
+            //         return { date, type, from, message, image };
+            //     }
+            // })
+                const result = await mapAsync(async (msg) => {
+                    const msg_timestamp = msg.messageTimestamp.low * 1000; // for local + (5.5 * 60 * 60 * 1000)
+                    if (data.ToDate >= msg_timestamp && data.FromDate <= msg_timestamp) {
+                        const message_data = msg.message;
+                        const key = msg.key;
+                        const from = conn.contacts[msg.participant].notify;
+                        const date = moment(new Date(msg_timestamp)).format('MMM Do YYYY, h:mm a');
+                        const image = (message_data.imageMessage) ? await conn.downloadAndSaveMediaMessage(msg, `./src/images/${key.id}`) : "";
+                        const message = (message_data.conversation) ? message_data.conversation : "";
+                        const type = "";
+                        return { date, type, from, message, image };
+                    }
+                }, finalMessages)
+
+                Promise.all(result).then(() => {
+                    const genPDF = new GeneratePDF(results);
+                    genPDF.generate();
+                    console.log("Done!!");
+                })
 
         });
     });
