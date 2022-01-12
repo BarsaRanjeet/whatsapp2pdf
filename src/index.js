@@ -3,7 +3,7 @@ import * as fs from 'fs'
 import prompt from 'prompt';
 
 const data = {
-    FromDate: new Date("2022-01-07"),
+    FromDate: new Date("2022-01-08"),
     ToDate: new Date("2022-01-10T23:59:59.999Z"),
     start_id: null,
     end_id: null,
@@ -38,8 +38,8 @@ const office_order = "919909955422-1465194455@g.us";
 //             return onErr(err);
 //         }
 //         console.log("************* Program started *************");
-//         data.FromDate = result.FromDate;
-//         data.ToDate = `${result.ToDate}T23:59:59.999Z`;
+//         data.FromDate = new Date(result.FromDate);
+//         data.ToDate = new Date(`${result.ToDate}T23:59:59.999Z`);
 //         gotInputs();
 //     });
 
@@ -138,12 +138,17 @@ const findDate = () => {
             findDate();
             return
         }
+
+        // load all messages between from date to To date
         loadFinalMessages(data.end_id, data.count).then((val) => {
             const finalMessages = val.messages;
             finalMessages.map((msg) => {
-                console.log(msg.message)
-                console.log(new Date(msg.messageTimestamp.low * 1000 + (5.5 * 60 * 60 * 1000)))
-                console.log("***************************************************************");
+                const msg_timestamp = msg.messageTimestamp.low * 1000 + (5.5 * 60 * 60 * 1000);
+                if (data.ToDate >= msg_timestamp && data.FromDate <= msg_timestamp) {
+                    console.log(msg.message)
+                    console.log(new Date(msg.messageTimestamp.low * 1000 + (5.5 * 60 * 60 * 1000)))
+                    console.log("***************************************************************");
+                }
             });
         });
     });
