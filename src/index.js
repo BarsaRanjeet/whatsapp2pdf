@@ -1,6 +1,7 @@
 import { WAConnection } from '@adiwajshing/baileys'
 import * as fs from 'fs'
 import prompt from 'prompt';
+import moment from 'moment';
 
 const data = {
     FromDate: new Date("2022-01-08"),
@@ -143,10 +144,12 @@ const findDate = () => {
         loadFinalMessages(data.end_id, data.count).then((val) => {
             const finalMessages = val.messages;
             finalMessages.map((msg) => {
-                const msg_timestamp = msg.messageTimestamp.low * 1000 + (5.5 * 60 * 60 * 1000);
+                const msg_timestamp = msg.messageTimestamp.low * 1000; // for local + (5.5 * 60 * 60 * 1000)
                 if (data.ToDate >= msg_timestamp && data.FromDate <= msg_timestamp) {
-                    console.log(msg.message)
-                    console.log(new Date(msg.messageTimestamp.low * 1000 + (5.5 * 60 * 60 * 1000)))
+                    const message = msg.message;
+                    const key = msg.key;
+                    const contact = conn.contacts[key.id]
+                    console.log(new Date())
                     console.log("***************************************************************");
                 }
             });
