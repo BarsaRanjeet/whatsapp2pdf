@@ -159,25 +159,25 @@ const findDate = () => {
             //         return { date, type, from, message, image };
             //     }
             // })
-                const result = await mapAsync(async (msg) => {
-                    const msg_timestamp = msg.messageTimestamp.low * 1000; // for local + (5.5 * 60 * 60 * 1000)
-                    if (data.ToDate >= msg_timestamp && data.FromDate <= msg_timestamp) {
-                        const message_data = msg.message;
-                        const key = msg.key;
-                        const from = conn.contacts[msg.participant].notify;
-                        const date = moment(new Date(msg_timestamp)).format('MMM Do YYYY, h:mm a');
-                        const image = (message_data.imageMessage) ? await conn.downloadAndSaveMediaMessage(msg, `./src/images/${key.id}`) : "";
-                        const message = (message_data.conversation) ? message_data.conversation : "";
-                        const type = "";
-                        return { date, type, from, message, image };
-                    }
-                }, finalMessages)
+            const result = await mapAsync(async (msg) => {
+                const msg_timestamp = msg.messageTimestamp.low * 1000; // for local + (5.5 * 60 * 60 * 1000)
+                if (data.ToDate >= msg_timestamp && data.FromDate <= msg_timestamp) {
+                    const message_data = msg.message;
+                    const key = msg.key;
+                    const from = conn.contacts[msg.participant].notify;
+                    const date = moment(new Date(msg_timestamp)).format('MMM Do YYYY, h:mm a');
+                    const image = (message_data.imageMessage) ? await conn.downloadAndSaveMediaMessage(msg, `./src/images/${key.id}`) : "";
+                    const message = (message_data.conversation) ? message_data.conversation : "";
+                    const type = "";
+                    results.push({ date, type, from, message, image });
+                }
+            }, finalMessages)
 
-                Promise.all(result).then(() => {
-                    const genPDF = new GeneratePDF(results);
-                    genPDF.generate();
-                    console.log("Done!!");
-                })
+            Promise.all(result).then(() => {
+                const genPDF = new GeneratePDF(results);
+                genPDF.generate();
+                console.log("Done!!");
+            })
 
         });
     });
