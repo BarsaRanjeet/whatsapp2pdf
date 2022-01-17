@@ -38,14 +38,16 @@ export class GeneratePDF {
         //add row
         this.lastRowYaxis = 50;
 
-        for (let row of this.data) {
+        for (let [_k, row] of Object.entries(this.data)) {
             if (this.lastRowYaxis >= 700) {
                 this.doc.addPage();
                 this.lastRowYaxis = 10;
             }
             this.addRow(this.doc, this.lastRowYaxis, row)
-            if (!row.image) this.lastRowYaxis += 50;
-            else this.lastRowYaxis += 110
+            // if
+            //     (!row.image) this.lastRowYaxis += 50;
+            // else
+            this.lastRowYaxis += 110
         }
 
         this.doc.end();
@@ -56,7 +58,9 @@ export class GeneratePDF {
 
         let no = 0;
         for (let col of columns) {
-            doc.fontSize(12).text(col, this.box * no, yaxis);
+            if (col == "from") doc.fontSize(12).text(col, 200, yaxis);
+            else if (col == "message") doc.fontSize(12).text(col, 280, yaxis);
+            else doc.fontSize(12).text(col, this.box * no, yaxis);
             no++;
         }
     }
@@ -69,10 +73,10 @@ export class GeneratePDF {
         doc.fontSize(8).text(data.type, this.box * 1, yaxis);
 
         // from 
-        doc.fontSize(8).text(data.from, this.box * 2, yaxis);
+        doc.fontSize(8).text(data.from, 200, yaxis);
 
         // message
-        doc.fontSize(8).text(data.message, this.box * 3, yaxis);
+        doc.fontSize(8).text(data.message, 280, yaxis, { width: 200 });
 
         if (data.image)
             // media
@@ -85,4 +89,16 @@ export class GeneratePDF {
     }
 }
 
+// local test
+// const result = {
+//     name: {
+//         "date": "20-05-2012",
+//         "type": "NEW MSG",
+//         "from": "From Me",
+//         "message": "Showing jdsadh jhsajk jdksaj kdjakj jdkasj kdja skjdk asjk jhf khk jdkajk",
+//         "image": ""
+//     }
+// }
 
+// const pd = new GeneratePDF(result);
+// pd.generate()
