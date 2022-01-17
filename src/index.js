@@ -5,8 +5,8 @@ import moment from 'moment';
 import { GeneratePDF } from './pdf.mjs'
 
 const data = {
-    FromDate: new Date("2022-01-02"),
-    ToDate: new Date("2022-01-12T23:59:59.999Z"),
+    FromDate: new Date("2022-01-11"),
+    ToDate: new Date("2022-01-13T23:59:59.999Z"),
     start_id: null,
     end_id: null,
     cursor: null,
@@ -166,8 +166,10 @@ const findDate = () => {
                     console.log("Reading messages of ", date);
                     const image = "";
                     const path = `./src/images/${key.id}.jpeg`;
-                    if (message_data.imageMessage && !fs.existsSync(path))
+                    if (message_data.imageMessage && !fs.existsSync(path)) {
+                        // const img = await conn.loadMessage(office_order, key.id); // for troubleshooting a problem
                         image = (message_data.imageMessage) ? await conn.downloadAndSaveMediaMessage(msg, `./src/images/${key.id}`) : "";
+                    }
                     let message = "";
                     if (message_data.conversation)
                         message = message_data.conversation;
@@ -193,8 +195,9 @@ const findDate = () => {
                             let latest_old_id = id;
                             while (true) {
                                 const oldChat = await conn.loadMessage(office_order, latest_old_id);
-                                const oldChatMessageData = oldChat.message;
-                                if (oldChatMessageData.extendedTextMessage) {
+                                let oldChatMessageData = null;
+                                oldChatMessageData = await oldChat.message;
+                                if (!!oldChatMessageData.extendedTextMessage) {
                                     if (oldChatMessageData.extendedTextMessage.contextInfo.quotedMessage) {
                                         const oldmsg_timestamp = oldChat.messageTimestamp.low * 1000; // for local + (5.5 * 60 * 60 * 1000)
 
