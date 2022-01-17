@@ -164,11 +164,7 @@ const findDate = () => {
                     const from = (msg.key.fromMe) ? 'From Me' : (conn.contacts[msg.participant].name) ? conn.contacts[msg.participant].name : conn.contacts[msg.participant].notify;
                     const date = moment(new Date(msg_timestamp)).format('MMM Do YYYY, h:mm a');
                     console.log("Reading messages of ", date);
-                    let image = "./src/images/${key.id}.jpeg";
-                    if (message_data.imageMessage && !fs.existsSync(image)) {
-                        // const img = await conn.loadMessage(office_order, key.id); // for troubleshooting a problem
-                        image = (message_data.imageMessage) ? await conn.downloadAndSaveMediaMessage(msg, `./src/images/${key.id}`) : "";
-                    }
+                    let image = (message_data.imageMessage) ? await conn.downloadAndSaveMediaMessage(msg, `./src/images/${key.id}`) : "";
                     let message = "";
                     if (message_data.conversation)
                         message = message_data.conversation;
@@ -202,9 +198,7 @@ const findDate = () => {
 
                                         const oldfrom = (oldChat.key.fromMe) ? 'From Me' : (conn.contacts[oldChat.participant].name) ? conn.contacts[oldChat.participant].name : conn.contacts[oldChat.participant].notify;
                                         const olddate = moment(new Date(oldmsg_timestamp)).format('MMM Do YYYY, h:mm a');
-                                        const oldimage = `./src/images/${oldChat.key.id}.jpeg`;
-                                        if (oldChatMessageData.imageMessage && !fs.existsSync(oldimage))
-                                            oldimage = (oldChatMessageData.imageMessage) ? await conn.downloadAndSaveMediaMessage(oldChat, `./src/images/${oldChat.key.id}`) : "";
+                                        const oldimage = (oldChatMessageData.imageMessage) ? await conn.downloadAndSaveMediaMessage(oldChat, `./src/images/${oldChat.key.id}`) : "";
                                         let oldmessage = "";
                                         if (oldChatMessageData.conversation)
                                             oldmessage = oldChatMessageData.conversation;
@@ -236,9 +230,7 @@ const findDate = () => {
 
                                             const oldfrom = (oldChat.key.fromMe) ? 'From Me' : (conn.contacts[oldChat.participant].name) ? conn.contacts[oldChat.participant].name : conn.contacts[oldChat.participant].notify;
                                             const olddate = moment(new Date(oldmsg_timestamp)).format('MMM Do YYYY, h:mm a');
-                                            let oldimage = `./src/images/${oldChat.key.id}.jpeg`;
-                                            if (oldChatMessageData.imageMessage && !fs.existsSync(oldimage))
-                                                oldimage = (oldChatMessageData.imageMessage) ? await conn.downloadAndSaveMediaMessage(oldChat, `./src/images/${oldChat.key.id}`) : "";
+                                            let oldimage = (oldChatMessageData.imageMessage) ? await conn.downloadAndSaveMediaMessage(oldChat, `./src/images/${oldChat.key.id}`) : "";
                                             let oldmessage = "";
                                             if (oldChatMessageData.conversation)
                                                 oldmessage = oldChatMessageData.conversation;
@@ -273,9 +265,7 @@ const findDate = () => {
                                         const oldfrom = (oldChat.key.fromMe) ? 'From Me' : (conn.contacts[oldChat.participant].name) ? conn.contacts[oldChat.participant].name : conn.contacts[oldChat.participant].notify;
                                         const olddate = moment(new Date(oldmsg_timestamp)).format('MMM Do YYYY, h:mm a');
 
-                                        let oldimage = `./src/images/${oldChat.key.id}.jpeg`;
-                                        if (oldChatMessageData.imageMessage && !fs.existsSync(oldimage))
-                                            oldimage = (oldChatMessageData.imageMessage) ? await conn.downloadAndSaveMediaMessage(oldChat, `./src/images/${oldChat.key.id}`) : "";
+                                        const oldimage = (oldChatMessageData.imageMessage) ? await conn.downloadAndSaveMediaMessage(oldChat, `./src/images/${oldChat.key.id}`) : "";
                                         let oldmessage = "";
                                         if (oldChatMessageData.conversation)
                                             oldmessage = oldChatMessageData.conversation;
