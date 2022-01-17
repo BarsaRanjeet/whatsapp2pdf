@@ -5,7 +5,7 @@ import moment from 'moment';
 import { GeneratePDF } from './pdf.mjs'
 
 const data = {
-    FromDate: new Date("2022-01-07"),
+    FromDate: new Date("2022-01-02"),
     ToDate: new Date("2022-01-12T23:59:59.999Z"),
     start_id: null,
     end_id: null,
@@ -164,7 +164,10 @@ const findDate = () => {
                     const from = (msg.key.fromMe) ? 'From Me' : (conn.contacts[msg.participant].name) ? conn.contacts[msg.participant].name : conn.contacts[msg.participant].notify;
                     const date = moment(new Date(msg_timestamp)).format('MMM Do YYYY, h:mm a');
                     console.log("Reading messages of ", date);
-                    const image = (message_data.imageMessage) ? await conn.downloadAndSaveMediaMessage(msg, `./src/images/${key.id}`) : "";
+                    const image = "";
+                    const path = `./src/images/${key.id}.jpeg`;
+                    if (message_data.imageMessage && !fs.existsSync(path))
+                        image = (message_data.imageMessage) ? await conn.downloadAndSaveMediaMessage(msg, `./src/images/${key.id}`) : "";
                     let message = "";
                     if (message_data.conversation)
                         message = message_data.conversation;
@@ -197,7 +200,10 @@ const findDate = () => {
 
                                         const oldfrom = (oldChat.key.fromMe) ? 'From Me' : (conn.contacts[oldChat.participant].name) ? conn.contacts[oldChat.participant].name : conn.contacts[oldChat.participant].notify;
                                         const olddate = moment(new Date(oldmsg_timestamp)).format('MMM Do YYYY, h:mm a');
-                                        const oldimage = (oldChatMessageData.imageMessage) ? await conn.downloadAndSaveMediaMessage(oldChat, `./src/images/${oldChat.key.id}`) : "";
+                                        const oldimage = "";
+                                        const path = `./src/images/${oldChat.key.id}.jpeg`;
+                                        if (oldChatMessageData.imageMessage && !fs.existsSync(path))
+                                            oldimage = (oldChatMessageData.imageMessage) ? await conn.downloadAndSaveMediaMessage(oldChat, `./src/images/${oldChat.key.id}`) : "";
                                         let oldmessage = "";
                                         if (oldChatMessageData.conversation)
                                             oldmessage = oldChatMessageData.conversation;
@@ -210,10 +216,10 @@ const findDate = () => {
                                             oldtype = "New MSG";
                                         else if (oldChatMessageData.imageMessage)
                                             oldtype = "IMG MSG";
-                                        else if (message_data.extendedTextMessage) {
-                                            if (!message_data.extendedTextMessage.contextInfo.quotedMessage)
+                                        else if (oldChatMessageData.extendedTextMessage) {
+                                            if (!oldChatMessageData.extendedTextMessage.contextInfo.quotedMessage)
                                                 oldtype = "Mentioned MSG";
-                                            else if (message_data.extendedTextMessage.contextInfo.quotedMessage) {
+                                            else if (oldChatMessageData.extendedTextMessage.contextInfo.quotedMessage) {
                                                 oldtype = "Reply MSG";
                                             }
                                         }
@@ -229,7 +235,10 @@ const findDate = () => {
 
                                             const oldfrom = (oldChat.key.fromMe) ? 'From Me' : (conn.contacts[oldChat.participant].name) ? conn.contacts[oldChat.participant].name : conn.contacts[oldChat.participant].notify;
                                             const olddate = moment(new Date(oldmsg_timestamp)).format('MMM Do YYYY, h:mm a');
-                                            const oldimage = (oldChatMessageData.imageMessage) ? await conn.downloadAndSaveMediaMessage(oldChat, `./src/images/${oldChat.key.id}`) : "";
+                                            const oldimage = "";
+                                            const path = `./src/images/${oldChat.key.id}.jpeg`;
+                                            if (oldChatMessageData.imageMessage && !fs.existsSync(path))
+                                                oldimage = (oldChatMessageData.imageMessage) ? await conn.downloadAndSaveMediaMessage(oldChat, `./src/images/${oldChat.key.id}`) : "";
                                             let oldmessage = "";
                                             if (oldChatMessageData.conversation)
                                                 oldmessage = oldChatMessageData.conversation;
@@ -264,7 +273,10 @@ const findDate = () => {
                                         const oldfrom = (oldChat.key.fromMe) ? 'From Me' : (conn.contacts[oldChat.participant].name) ? conn.contacts[oldChat.participant].name : conn.contacts[oldChat.participant].notify;
                                         const olddate = moment(new Date(oldmsg_timestamp)).format('MMM Do YYYY, h:mm a');
 
-                                        const oldimage = (oldChatMessageData.imageMessage) ? await conn.downloadAndSaveMediaMessage(oldChat, `./src/images/${oldChat.key.id}`) : "";
+                                        const oldimage = "";
+                                        const path = `./src/images/${oldChat.key.id}.jpeg`;
+                                        if (oldChatMessageData.imageMessage && !fs.existsSync(path))
+                                            oldimage = (oldChatMessageData.imageMessage) ? await conn.downloadAndSaveMediaMessage(oldChat, `./src/images/${oldChat.key.id}`) : "";
                                         let oldmessage = "";
                                         if (oldChatMessageData.conversation)
                                             oldmessage = oldChatMessageData.conversation;
