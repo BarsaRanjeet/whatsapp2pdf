@@ -5,7 +5,7 @@ import moment from 'moment';
 import { GeneratePDF } from './pdf.mjs'
 
 const data = {
-    FromDate: new Date("2022-01-11"),
+    FromDate: new Date("2022-01-07"),
     ToDate: new Date("2022-01-12T23:59:59.999Z"),
     start_id: null,
     end_id: null,
@@ -76,17 +76,17 @@ conn.on('open', () => {
     storeSession(conn);
 })
 
-conn.on('chat-update', chatUpdate => {
-    if (chatUpdate.messages && chatUpdate.count) {
-        const message = chatUpdate.messages.all()[0]
-        console.log(message.key.remoteJid, chatUpdate.jid)
-        // console.log(message.key.id)
-        // const contact = conn.chats.get(chatUpdate.jid);
-        // console.log(contact);
-        console.log(message);
-    }
-    else console.log(chatUpdate);
-})
+// conn.on('chat-update', chatUpdate => {
+//     if (chatUpdate.messages && chatUpdate.count) {
+//         const message = chatUpdate.messages.all()[0]
+//         console.log(message.key.remoteJid, chatUpdate.jid)
+//         // console.log(message.key.id)
+//         // const contact = conn.chats.get(chatUpdate.jid);
+//         // console.log(contact);
+//         console.log(message);
+//     }
+//     else console.log(chatUpdate);
+// })
 
 function storeSession(conn) {
     console.log("saving session");
@@ -155,14 +155,15 @@ const findDate = () => {
             const finalMessages = val.messages;
             const results = {};
             for (let msg of finalMessages) {
+                console.clear();
                 const msg_timestamp = msg.messageTimestamp.low * 1000; // for local + (5.5 * 60 * 60 * 1000)
                 if (data.ToDate >= msg_timestamp && data.FromDate <= msg_timestamp && msg.message != null) {
                     const message_data = msg.message;
                     const key = msg.key;
                     const id = key.id;
-                    // const from = conn.contacts[msg.participant].notify;
                     const from = (msg.key.fromMe) ? 'From Me' : (conn.contacts[msg.participant].name) ? conn.contacts[msg.participant].name : conn.contacts[msg.participant].notify;
                     const date = moment(new Date(msg_timestamp)).format('MMM Do YYYY, h:mm a');
+                    console.log("Reading messages of ", date);
                     const image = (message_data.imageMessage) ? await conn.downloadAndSaveMediaMessage(msg, `./src/images/${key.id}`) : "";
                     let message = "";
                     if (message_data.conversation)
@@ -176,12 +177,127 @@ const findDate = () => {
                         type = "New MSG";
                     else if (message_data.imageMessage)
                         type = "IMG MSG";
-                    else if (message_data.extendedTextMessage)
-                        type = "Reply MSG";
-                    results[id] = { date, type, from, message, image };
+
+                    if (message_data.extendedTextMessage) {
+                        if (!message_data.extendedTextMessage.contextInfo.quotedMessage) {
+                            type = "Mentioned MSG";
+                            results[id] = { date, type, from, message, image };
+                        }
+                        else {
+                            type = "Reply MSG";
+
+                            let reply_messages = [];
+                            let latest_old_id = id;
+                            while (true) {
+                                const oldChat = await conn.loadMessage(office_order, latest_old_id);
+                                const oldChatMessageData = oldChat.message;
+                                if (oldChatMessageData.extendedTextMessage) {
+                                    if (oldChatMessageData.extendedTextMessage.contextInfo.quotedMessage) {
+                                        const oldmsg_timestamp = oldChat.messageTimestamp.low * 1000; // for local + (5.5 * 60 * 60 * 1000)
+
+                                        const oldfrom = (oldChat.key.fromMe) ? 'From Me' : (conn.contacts[oldChat.participant].name) ? conn.contacts[oldChat.participant].name : conn.contacts[oldChat.participant].notify;
+                                        const olddate = moment(new Date(oldmsg_timestamp)).format('MMM Do YYYY, h:mm a');
+                                        const oldimage = (oldChatMessageData.imageMessage) ? await conn.downloadAndSaveMediaMessage(oldChat, `./src/images/${oldChat.key.id}`) : "";
+                                        let oldmessage = "";
+                                        if (oldChatMessageData.conversation)
+                                            oldmessage = oldChatMessageData.conversation;
+                                        else if (oldChatMessageData.imageMessage)
+                                            oldmessage = oldChatMessageData.imageMessage.caption;
+                                        else if (oldChatMessageData.extendedTextMessage)
+                                            oldmessage = oldChatMessageData.extendedTextMessage.text;
+                                        let oldtype = "";
+                                        if (oldChatMessageData.conversation)
+                                            oldtype = "New MSG";
+                                        else if (oldChatMessageData.imageMessage)
+                                            oldtype = "IMG MSG";
+                                        else if (message_data.extendedTextMessage) {
+                                            if (!message_data.extendedTextMessage.contextInfo.quotedMessage)
+                                                oldtype = "Mentioned MSG";
+                                            else if (message_data.extendedTextMessage.contextInfo.quotedMessage) {
+                                                oldtype = "Reply MSG";
+                                            }
+                                        }
+                                        latest_old_id = oldChatMessageData.extendedTextMessage.contextInfo.stanzaId;
+                                        reply_messages.push({ date: olddate, type: oldtype, from: oldfrom, message: oldmessage, image: oldimage })
+                                    }
+                                    else {
+                                        if (results[oldChat.key.id]) {
+                                            const messageData = results[oldChat.key.id];
+                                            results[oldChat.key.id] = { ...messageData, reply: reply_messages }
+                                        } else {
+                                            const oldmsg_timestamp = oldChat.messageTimestamp.low * 1000; // for local + (5.5 * 60 * 60 * 1000)
+
+                                            const oldfrom = (oldChat.key.fromMe) ? 'From Me' : (conn.contacts[oldChat.participant].name) ? conn.contacts[oldChat.participant].name : conn.contacts[oldChat.participant].notify;
+                                            const olddate = moment(new Date(oldmsg_timestamp)).format('MMM Do YYYY, h:mm a');
+                                            const oldimage = (oldChatMessageData.imageMessage) ? await conn.downloadAndSaveMediaMessage(oldChat, `./src/images/${oldChat.key.id}`) : "";
+                                            let oldmessage = "";
+                                            if (oldChatMessageData.conversation)
+                                                oldmessage = oldChatMessageData.conversation;
+                                            else if (oldChatMessageData.imageMessage)
+                                                oldmessage = oldChatMessageData.imageMessage.caption;
+                                            else if (oldChatMessageData.extendedTextMessage)
+                                                oldmessage = oldChatMessageData.extendedTextMessage.text;
+                                            let oldtype = "";
+                                            if (oldChatMessageData.conversation)
+                                                oldtype = "New MSG";
+                                            else if (oldChatMessageData.imageMessage)
+                                                oldtype = "IMG MSG";
+                                            else if (oldChatMessageData.extendedTextMessage) {
+                                                if (!oldChatMessageData.extendedTextMessage.contextInfo.quotedMessage)
+                                                    oldtype = "Mentioned MSG";
+                                                else if (oldChatMessageData.extendedTextMessage.contextInfo.quotedMessage) {
+                                                    oldtype = "Reply MSG";
+                                                }
+                                            }
+                                            results[oldChat.key.id] = { date: olddate, type: oldtype, from: oldfrom, message: oldmessage, image: oldimage, reply: reply_messages };
+                                        }
+                                        break;
+                                    }
+                                }
+                                else {
+                                    if (results[oldChat.key.id]) {
+                                        const messageData = results[oldChat.key.id];
+                                        results[oldChat.key.id] = { ...messageData, reply: reply_messages }
+                                    } else {
+                                        const oldmsg_timestamp = oldChat.messageTimestamp.low * 1000; // for local + (5.5 * 60 * 60 * 1000)
+
+                                        const oldfrom = (oldChat.key.fromMe) ? 'From Me' : (conn.contacts[oldChat.participant].name) ? conn.contacts[oldChat.participant].name : conn.contacts[oldChat.participant].notify;
+                                        const olddate = moment(new Date(oldmsg_timestamp)).format('MMM Do YYYY, h:mm a');
+
+                                        const oldimage = (oldChatMessageData.imageMessage) ? await conn.downloadAndSaveMediaMessage(oldChat, `./src/images/${oldChat.key.id}`) : "";
+                                        let oldmessage = "";
+                                        if (oldChatMessageData.conversation)
+                                            oldmessage = oldChatMessageData.conversation;
+                                        else if (oldChatMessageData.imageMessage)
+                                            oldmessage = oldChatMessageData.imageMessage.caption;
+                                        else if (oldChatMessageData.extendedTextMessage)
+                                            oldmessage = oldChatMessageData.extendedTextMessage.text;
+                                        let oldtype = "";
+                                        if (oldChatMessageData.conversation)
+                                            oldtype = "New MSG";
+                                        else if (oldChatMessageData.imageMessage)
+                                            oldtype = "IMG MSG";
+                                        else if (oldChatMessageData.extendedTextMessage) {
+                                            if (!oldChatMessageData.extendedTextMessage.contextInfo.quotedMessage)
+                                                oldtype = "Mentioned MSG";
+                                            else if (oldChatMessageData.extendedTextMessage.contextInfo.quotedMessage) {
+                                                oldtype = "Reply MSG";
+                                            }
+                                        }
+                                        results[oldChat.key.id] = { date: olddate, type: oldtype, from: oldfrom, message: oldmessage, image: oldimage, reply: reply_messages };
+                                    }
+                                    break;
+                                }
+
+                            }
+
+                        }
+                    }
+                    else
+                        results[id] = { date, type, from, message, image };
+                    // console.log(message_data);
                 }
             }
-
             const genPDF = new GeneratePDF(results);
             genPDF.generate();
             console.log("Done!!");

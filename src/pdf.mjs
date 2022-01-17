@@ -48,6 +48,18 @@ export class GeneratePDF {
             //     (!row.image) this.lastRowYaxis += 50;
             // else
             this.lastRowYaxis += 110
+            if (row.reply) {
+                for (let i = row.reply.length; i >= 1; i--) {
+                    if (this.lastRowYaxis >= 700) {
+                        this.doc.addPage();
+                        this.lastRowYaxis = 10;
+                    }
+                    this.addRow(this.doc, this.lastRowYaxis, row.reply[i - 1])
+
+                    this.lastRowYaxis += 110
+
+                }
+            }
         }
 
         this.doc.end();
@@ -97,6 +109,29 @@ export class GeneratePDF {
 //         "from": "From Me",
 //         "message": "Showing jdsadh jhsajk jdksaj kdjakj jdkasj kdja skjdk asjk jhf khk jdkajk",
 //         "image": ""
+//     },
+//     name2: {
+//         "date": "20-05-2012",
+//         "type": "NEW MSG",
+//         "from": "From Me",
+//         "message": "Showing jdsadh jhsajk jdksaj kdjakj jdkasj kdja skjdk asjk jhf khk jdkajk",
+//         "image": "",
+//         reply: [
+//             {
+//                 "date": "20-05-2012",
+//                 "type": "Reply 1",
+//                 "from": "From Me",
+//                 "message": "Showing jdsadh jhsajk jdksaj kdjakj jdkasj kdja skjdk asjk jhf khk jdkajk",
+//                 "image": ""
+//             },
+//             {
+//                 "date": "20-05-2012",
+//                 "type": "Reply 2",
+//                 "from": "From Me",
+//                 "message": "Showing jdsadh jhsajk jdksaj kdjakj jdkasj kdja skjdk asjk jhf khk jdkajk",
+//                 "image": ""
+//             }
+//         ]
 //     }
 // }
 
