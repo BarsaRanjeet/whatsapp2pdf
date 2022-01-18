@@ -16,6 +16,12 @@ const data = {
 const test = "918866464813-1602851606@g.us";
 let office_order = "919909955422-1465194455@g.us";
 
+//checking if images folder is exists or not
+const dir = './src/images';
+if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir);
+}
+
 // replacing for development
 // office_order = test
 
